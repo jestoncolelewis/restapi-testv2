@@ -20,7 +20,7 @@ bucket = aws.s3.Bucket(
 # Set ownership controls for the new bucket
 ownership_controls = aws.s3.BucketOwnershipControls(
     "ownership-controls",
-    bucket=bucket.bucket,
+    bucket=bucket.id,
     rule=aws.s3.BucketOwnershipControlsRuleArgs(
         object_ownership="ObjectWriter",
     )
@@ -29,7 +29,7 @@ ownership_controls = aws.s3.BucketOwnershipControls(
 # Configure public ACL block on the new bucket
 public_access_block = aws.s3.BucketPublicAccessBlock(
     "public-access-block",
-    bucket=bucket.bucket,
+    bucket=bucket.id,
     block_public_acls=False,
 )
 
@@ -37,7 +37,7 @@ public_access_block = aws.s3.BucketPublicAccessBlock(
 bucket_folder = synced_folder.S3BucketFolder(
     "bucket-folder",
     acl="public-read",
-    bucket_name=bucket.bucket,
+    bucket_name=bucket.id,
     path=path,
     opts=pulumi.ResourceOptions(depends_on=[
         ownership_controls,
