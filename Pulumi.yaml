@@ -1,0 +1,6 @@
+name: restapi-test
+runtime:
+  name: python
+  options:
+    virtualenv: venv
+description: test environment for rest apis
