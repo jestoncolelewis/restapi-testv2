@@ -3,10 +3,9 @@ import pulumi_aws as aws
 import pulumi_synced_folder as synced_folder
 
 # Import the program's configuration settings.
-config = pulumi.Config()
-path = config.get("path") or "./www"
-index_document = config.get("indexDocument") or "index.html"
-error_document = config.get("errorDocument") or "error.html"
+path = "./www"
+index_document = "index.html"
+error_document = "error.html"
 
 # Create an S3 bucket and configure it as a website.
 bucket = aws.s3.Bucket(
@@ -38,7 +37,7 @@ bucket_folder = synced_folder.S3BucketFolder(
     "bucket-folder",
     acl="public-read",
     bucket_name=bucket.bucket,
-    path="./www",
+    path=path,
     opts=pulumi.ResourceOptions(depends_on=[
         ownership_controls,
         public_access_block
