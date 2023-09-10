@@ -1,5 +1,7 @@
 import pulumi
+import pulumi_archive as archive
 import pulumi_aws as aws
+import pulumi_aws_apigateway as apigateway
 import pulumi_synced_folder as synced_folder
 
 # Import the program's configuration settings.
@@ -101,8 +103,44 @@ cdn = aws.cloudfront.Distribution(
     ),
 )
 
+# Create function
+assume_role = aws.iam.get_policy_document(
+    statements=[
+        aws.iam.GetPolicyDocumentStatementArgs(
+            effect="Allow",
+            principals=[aws.iam.GetPolicyDocumentStatementPrincipalArgs(
+                type="Service",
+                identifiers=["lambda.amazonaws.com"]
+            )],
+            actions=["sts:AssumeRole"]
+        )
+    ]
+)
+iam_for_lambda = aws.iam.Role("iamForLambda", assume_role_policy=assume_role.json)
+get_lambda = archive.get_file(
+    type="zip",
+    source_file="get_function.py",
+    output_path="lambda_get_payload.zip"
+)
+get_function = aws.lambda_.Function(
+    "get_func",
+    code=pulumi.FileArchive("lambda_get_payload.zip"),
+    role=iam_for_lambda.arn,
+    handler="get_function.handler",
+    runtime="python3.9"
+)
+
+# Create api
+api = apigateway.RestAPI(
+    "api",
+    routes=[
+        apigateway.RouteArgs(path="/", method="GET", event_handler=get_function) #type: ignore
+    ]
+)
+
 # Export the URLs and hostnames of the bucket and distribution.
 pulumi.export("originURL", pulumi.Output.concat("http://", bucket.website_endpoint))
 pulumi.export("originHostname", bucket.website_endpoint)
 pulumi.export("cdnURL", pulumi.Output.concat("https://", cdn.domain_name))
 pulumi.export("cdnHostname", cdn.domain_name)
+pulumi.export("apiURL", api.url)

@@ -1,8 +1,8 @@
-const url = "https://86900w8so3.execute-api.us-west-2.amazonaws.com/prod/functions";
+const url = "https://ptwo5hksng.execute-api.us-east-1.amazonaws.com/stage/";
 
 function get() {
     fetch(
-        `${url}?transactionId=10&type=SELL&amount=600`,
+        `${url}`,
         {
             method: "GET",
             headers: {
