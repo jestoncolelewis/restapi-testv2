@@ -37,8 +37,8 @@ public_access_block = aws.s3.BucketPublicAccessBlock(
 bucket_folder = synced_folder.S3BucketFolder(
     "bucket-folder",
     acl="public-read",
-    bucket_name=bucket.id,
-    path=path,
+    bucket_name=bucket.bucket,
+    path="./www",
     opts=pulumi.ResourceOptions(depends_on=[
         ownership_controls,
         public_access_block
