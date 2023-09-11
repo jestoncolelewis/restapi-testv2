@@ -131,11 +131,75 @@ get_function = aws.lambda_.Function(
 )
 
 # Create api
-api = apigateway.RestAPI(
-    "api",
-    routes=[
-        apigateway.RouteArgs(path="/", method="GET", event_handler=get_function) #type: ignore
-    ]
+api = aws.apigateway.RestApi("api")
+deployment = aws.apigateway.Deployment(
+    "Deployment",
+    rest_api=api.id
+)
+resource = aws.apigateway.Resource(
+    "Resource",
+    rest_api=api.id,
+    parent_id=api.root_resource_id,
+    path_part="prod"
+)
+get_method = aws.apigateway.Method(
+    "GetMethod",
+    rest_api=api.id,
+    resource_id=resource.id,
+    http_method="GET",
+    authorization="NONE"
+)
+get_integration = aws.apigateway.Integration(
+    "GetIntegration",
+    rest_api=api.id,
+    resource_id=resource.id,
+    http_method=get_method.http_method,
+    integration_http_method="POST",
+    type="AWS_PROXY",
+    uri=get_function.invoke_arn
+)
+options_method = aws.apigateway.Method(
+    "OptionsMethod",
+    rest_api=api.id,
+    resource_id=resource.id,
+    http_method="OPTIONS",
+    authorization="NONE"
+)
+options_integration = aws.apigateway.Integration(
+    "OptionsIntegration",
+    rest_api=api.id,
+    resource_id=resource.id,
+    http_method=options_method.http_method,
+    type="MOCK"
+)
+response200 = aws.apigateway.MethodResponse(
+    "response200",
+    rest_api=api.id,
+    resource_id=resource.id,
+    http_method=options_method.http_method,
+    status_code="200"
+)
+integration_response = aws.apigateway.IntegrationResponse(
+    "IntegrationResponse",
+    rest_api=api.id,
+    resource_id=resource.id,
+    http_method=options_method.http_method,
+    status_code=response200.status_code,
+    response_templates={
+        "application/xml": """
+                                #set($inputRoot = $input.path('$'))
+                                <?xml version="1.0" encoding="UTF-8"?>
+                                <message>
+                                    $inputRoot.body
+                                </message>
+                            """
+    }
+)
+stage = aws.apigateway.Stage(
+    "Stage",
+    deployment=deployment.id,
+    rest_api=api.id,
+    stage_name="stage"
 )
 
 # Export the URLs and hostnames of the bucket and distribution.
@@ -143,4 +207,4 @@ pulumi.export("originURL", pulumi.Output.concat("http://", bucket.website_endpoi
 pulumi.export("originHostname", bucket.website_endpoint)
 pulumi.export("cdnURL", pulumi.Output.concat("https://", cdn.domain_name))
 pulumi.export("cdnHostname", cdn.domain_name)
-pulumi.export("apiURL", api.url)
+pulumi.export("apiURL", stage.invoke_url)
