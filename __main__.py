@@ -208,4 +208,5 @@ pulumi.export("originHostname", bucket.website_endpoint)
 pulumi.export("cdnURL", pulumi.Output.concat("https://", cdn.domain_name))
 pulumi.export("cdnHostname", cdn.domain_name)
 pulumi.export("apiURL", stage.invoke_url)
-pulumi.export("readme", pulumi.README.md)
+with open("./README.md") as f:
+    pulumi.export("readme", f.read())
