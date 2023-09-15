@@ -132,10 +132,6 @@ get_function = aws.lambda_.Function(
 
 # Create api
 api = aws.apigateway.RestApi("api")
-deployment = aws.apigateway.Deployment(
-    "Deployment",
-    rest_api=api.id
-)
 resource = aws.apigateway.Resource(
     "Resource",
     rest_api=api.id,
@@ -194,6 +190,10 @@ integration_response = aws.apigateway.IntegrationResponse(
                                 </message>
                             """
     }
+)
+deployment = aws.apigateway.Deployment(
+    "Deployment",
+    rest_api=api.id
 )
 stage = aws.apigateway.Stage(
     "Stage",
