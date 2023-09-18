@@ -163,6 +163,11 @@ get_function = aws.lambda_.Function(
         ]
     )
 )
+get_logs_destination = aws.cloudwatch.LogDestination(
+    "get_logs_destination",
+    role_arn=iam_for_lambda.arn,
+    target_arn=get_function.arn
+)
 
 # Create api
 api = aws.apigateway.RestApi("api")
