@@ -103,27 +103,10 @@ cdn = aws.cloudfront.Distribution(
     ),
 )
 
-# Create logs
+# Create log group
 get_func_logs = aws.cloudwatch.LogGroup(
     "get_logs",
     retention_in_days=14
-)
-get_logging_policy_doc = aws.iam.get_policy_document(
-    statements=[
-        aws.iam.GetPolicyDocumentStatementArgs(
-            effect="Allow",
-            actions=[
-                "logs:CreateLogGroup",
-                "logs:CreateLogStream",
-                "logs:PutLogEvents"
-            ],
-            resources=["arn:aws:logs:*:*:*"]
-)])
-get_logging_policy = aws.iam.Policy(
-    "get_lambda_logging_policy",
-    path="/",
-    description="Policy for the logs of the get function",
-    policy=get_logging_policy_doc.json
 )
 
 # Create function
@@ -140,11 +123,6 @@ assume_role = aws.iam.get_policy_document(
     ]
 )
 iam_for_lambda = aws.iam.Role("iamForLambda", assume_role_policy=assume_role.json)
-get_lambda_logs = aws.iam.RolePolicyAttachment(
-    "get_lambda_logs",
-    role=iam_for_lambda.name,
-    policy_arn=get_logging_policy.arn
-)
 get_lambda = archive.get_file(
     type="zip",
     source_file="get_function.py",
@@ -156,17 +134,25 @@ get_function = aws.lambda_.Function(
     role=iam_for_lambda.arn,
     handler="get_function.handler",
     runtime="python3.9",
+    environment={
+        "variables": {
+            "LOG_LEVEL": "INFO"
+        }
+    },
     opts=pulumi.ResourceOptions(
         depends_on=[
-            get_lambda_logs,
             get_func_logs
         ]
     )
 )
-get_logs_destination = aws.cloudwatch.LogDestination(
-    "get_logs_destination",
-    role_arn=iam_for_lambda.arn,
-    target_arn=get_function.arn
+get_function_log_group = aws.lambda_.FunctionEventInvokeConfig(
+    "get_log_config",
+    function_name=get_function.name,
+    destination_config= {
+        "on_failure": {
+            "destination": get_func_logs.arn
+        }
+    }
 )
 
 # Create api
