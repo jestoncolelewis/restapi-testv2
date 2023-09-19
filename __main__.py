@@ -1,7 +1,6 @@
 import pulumi
 import pulumi_archive as archive
 import pulumi_aws as aws
-import pulumi_aws_apigateway as apigateway
 import pulumi_synced_folder as synced_folder
 
 # Import the program's configuration settings.
@@ -103,12 +102,6 @@ cdn = aws.cloudfront.Distribution(
     ),
 )
 
-# Create log group
-get_func_logs = aws.cloudwatch.LogGroup(
-    "get_logs",
-    retention_in_days=14
-)
-
 # Create function
 assume_role = aws.iam.get_policy_document(
     statements=[
@@ -122,7 +115,10 @@ assume_role = aws.iam.get_policy_document(
         )
     ]
 )
-iam_for_lambda = aws.iam.Role("iamForLambda", assume_role_policy=assume_role.json)
+iam_for_lambda = aws.iam.Role(
+    "iamForLambda",
+    assume_role_policy=assume_role.json,
+)
 get_lambda = archive.get_file(
     type="zip",
     source_file="get_function.py",
@@ -138,99 +134,13 @@ get_function = aws.lambda_.Function(
         "variables": {
             "LOG_LEVEL": "INFO"
         }
-    },
-    opts=pulumi.ResourceOptions(
-        depends_on=[
-            get_func_logs
-        ]
-    )
-)
-get_function_log_group = aws.lambda_.FunctionEventInvokeConfig(
-    "get_log_config",
-    function_name=get_function.name,
-    destination_config= {
-        "on_failure": {
-            "destination": get_func_logs.arn
-        }
     }
 )
 
 # Create api
-api = aws.apigateway.RestApi("api")
-resource = aws.apigateway.Resource(
-    "Resource",
-    rest_api=api.id,
-    parent_id=api.root_resource_id,
-    path_part="prod"
-)
-get_method = aws.apigateway.Method(
-    "GetMethod",
-    rest_api=api.id,
-    resource_id=resource.id,
-    http_method="GET",
-    authorization="NONE"
-)
-get_integration = aws.apigateway.Integration(
-    "GetIntegration",
-    rest_api=api.id,
-    resource_id=resource.id,
-    http_method=get_method.http_method,
-    integration_http_method="POST",
-    type="AWS_PROXY",
-    uri=get_function.invoke_arn
-)
-options_method = aws.apigateway.Method(
-    "OptionsMethod",
-    rest_api=api.id,
-    resource_id=resource.id,
-    http_method="OPTIONS",
-    authorization="NONE"
-)
-options_integration = aws.apigateway.Integration(
-    "OptionsIntegration",
-    rest_api=api.id,
-    resource_id=resource.id,
-    http_method=options_method.http_method,
-    type="MOCK"
-)
-response200 = aws.apigateway.MethodResponse(
-    "response200",
-    rest_api=api.id,
-    resource_id=resource.id,
-    http_method=options_method.http_method,
-    status_code="200"
-)
-integration_response = aws.apigateway.IntegrationResponse(
-    "IntegrationResponse",
-    rest_api=api.id,
-    resource_id=resource.id,
-    http_method=options_method.http_method,
-    status_code=response200.status_code,
-    response_templates={
-        "application/xml": """
-                                #set($inputRoot = $input.path('$'))
-                                <?xml version="1.0" encoding="UTF-8"?>
-                                <message>
-                                    $inputRoot.body
-                                </message>
-                            """
-    }
-)
-deployment = aws.apigateway.Deployment(
-    "Deployment",
-    rest_api=api.id,
-    opts=pulumi.ResourceOptions(
-        depends_on=[
-            get_method,
-            options_method
-        ]
-    )
-)
-stage = aws.apigateway.Stage(
-    "Stage",
-    deployment=deployment.id,
-    rest_api=api.id,
-    stage_name="stage"
+apigw = aws.apigatewayv2.Api(
+    "httpAPI",
+    protocol_type="HTTP"
 )
 
 # Export the URLs and hostnames of the bucket and distribution.
@@ -238,6 +148,5 @@ pulumi.export("originURL", pulumi.Output.concat("http://", bucket.website_endpoi
 pulumi.export("originHostname", bucket.website_endpoint)
 pulumi.export("cdnURL", pulumi.Output.concat("https://", cdn.domain_name))
 pulumi.export("cdnHostname", cdn.domain_name)
-pulumi.export("apiURL", stage.invoke_url)
 with open("./README.md") as f:
     pulumi.export("readme", f.read())
