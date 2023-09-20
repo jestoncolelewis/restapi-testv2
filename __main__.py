@@ -119,6 +119,11 @@ iam_for_lambda = aws.iam.Role(
     "iamForLambda",
     assume_role_policy=assume_role.json,
 )
+lambda_basic_attach = aws.iam.RolePolicyAttachment(
+    'lambdaBasicPolicyAttach',
+    role=iam_for_lambda.name,
+    policy_arn='arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+)
 get_lambda = archive.get_file(
     type="zip",
     source_file="get_function.py",
@@ -139,8 +144,14 @@ get_function = aws.lambda_.Function(
 
 # Create api
 apigw = aws.apigatewayv2.Api(
-    "httpAPI",
+    "httpAPI", 
     protocol_type="HTTP"
+)
+api_route = aws.apigatewayv2.Route(
+    "route",
+    api_id=apigw.id,
+    route_key="GET /",
+    target=get_function.arn
 )
 
 # Export the URLs and hostnames of the bucket and distribution.
@@ -148,5 +159,6 @@ pulumi.export("originURL", pulumi.Output.concat("http://", bucket.website_endpoi
 pulumi.export("originHostname", bucket.website_endpoint)
 pulumi.export("cdnURL", pulumi.Output.concat("https://", cdn.domain_name))
 pulumi.export("cdnHostname", cdn.domain_name)
+pulumi.export("apiEndpoint", apigw.execution_arn)
 with open("./README.md") as f:
     pulumi.export("readme", f.read())
