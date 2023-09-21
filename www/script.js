@@ -1,4 +1,4 @@
-const url = "https://zkb9me1a80.execute-api.us-east-1.amazonaws.com/stage/prod";
+const url = "https://7ici6znw71.execute-api.us-east-1.amazonaws.com/prod/get_func-4709940";
 
 function get() {
     fetch(
