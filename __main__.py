@@ -147,6 +147,13 @@ route = aws.apigatewayv2.Route(
     api_id=apigw.id,
     route_key="GET /prod"
 )
+integration = aws.apigatewayv2.Integration(
+    "integration",
+    api_id=apigw.id,
+    content_handling_strategy="CONVERT_TO_TEXT",
+    integration_method="GET",
+    integration_uri=get_function.arn
+)
 
 # Export the URLs and hostnames of the bucket and distribution.
 pulumi.export("originURL", pulumi.Output.concat("http://", bucket.website_endpoint))
