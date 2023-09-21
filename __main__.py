@@ -160,6 +160,10 @@ integration = aws.apigatewayv2.Integration(
     integration_method="GET",
     integration_uri=get_function.arn
 )
+stage = aws.apigatewayv2.Stage(
+    "stage",
+    api_id=get_function.id,
+)
 
 # Export the URLs and hostnames of the bucket and distribution.
 pulumi.export("originURL", pulumi.Output.concat("http://", bucket.website_endpoint))
