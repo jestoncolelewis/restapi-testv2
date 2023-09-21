@@ -164,6 +164,10 @@ stage = aws.apigatewayv2.Stage(
     "stage",
     api_id=apigw.id,
 )
+deployment = aws.apigatewayv2.Deployment(
+    "deployment",
+    api_id=apigw.id
+)
 
 # Export the URLs and hostnames of the bucket and distribution.
 pulumi.export("originURL", pulumi.Output.concat("http://", bucket.website_endpoint))
