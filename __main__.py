@@ -156,6 +156,7 @@ integration = aws.apigatewayv2.Integration(
     "integration",
     api_id=apigw.id,
     content_handling_strategy="CONVERT_TO_TEXT",
+    integration_type="HTTP_PROXY",
     integration_method="GET",
     integration_uri=get_function.arn
 )
