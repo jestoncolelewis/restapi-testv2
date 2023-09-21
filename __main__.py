@@ -160,7 +160,7 @@ integration = aws.apigatewayv2.Integration(
 route = aws.apigatewayv2.Route(
     "route",
     api_id=apigw.id,
-    route_key=f"ANY /{get_function.name}"
+    route_key=f"ANY /get_func-4709940"
 )
 stage = aws.apigatewayv2.Stage(
     "stage",
