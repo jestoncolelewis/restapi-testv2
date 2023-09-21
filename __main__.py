@@ -170,10 +170,6 @@ stage = aws.apigatewayv2.Stage(
 )
 
 # Export the URLs and hostnames of the bucket and distribution.
-pulumi.export("originURL", pulumi.Output.concat("http://", bucket.website_endpoint))
-pulumi.export("originHostname", bucket.website_endpoint)
 pulumi.export("cdnURL", pulumi.Output.concat("https://", cdn.domain_name))
-pulumi.export("cdnHostname", cdn.domain_name)
-pulumi.export("apiEndpoint", apigw.api_endpoint)
 with open("./README.md") as f:
     pulumi.export("readme", f.read())
