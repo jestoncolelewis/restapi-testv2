@@ -147,26 +147,26 @@ apigw = aws.apigatewayv2.Api(
     "httpAPI", 
     protocol_type="HTTP"
 )
-route = aws.apigatewayv2.Route(
-    "route",
-    api_id=apigw.id,
-    route_key="GET /prod"
-)
 integration = aws.apigatewayv2.Integration(
     "integration",
     api_id=apigw.id,
-    content_handling_strategy="CONVERT_TO_TEXT",
-    integration_type="HTTP_PROXY",
-    integration_method="GET",
-    integration_uri=get_function.arn
+    integration_method="POST",
+    integration_type="AWS_PROXY",
+    integration_uri=get_function.arn,
+    passthrough_behavior="WHEN_NO_MATCH",
+    payload_format_version="2.0",
+    timeout_milliseconds=30000
+)
+route = aws.apigatewayv2.Route(
+    "route",
+    api_id=apigw.id,
+    route_key=f"ANY /{get_function.name}"
 )
 stage = aws.apigatewayv2.Stage(
     "stage",
     api_id=apigw.id,
-)
-deployment = aws.apigatewayv2.Deployment(
-    "deployment",
-    api_id=apigw.id
+    auto_deploy=True,
+    name="prod"
 )
 
 # Export the URLs and hostnames of the bucket and distribution.
