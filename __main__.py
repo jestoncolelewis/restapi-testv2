@@ -162,7 +162,7 @@ integration = aws.apigatewayv2.Integration(
 )
 stage = aws.apigatewayv2.Stage(
     "stage",
-    api_id=get_function.id,
+    api_id=apigw.id,
 )
 
 # Export the URLs and hostnames of the bucket and distribution.
