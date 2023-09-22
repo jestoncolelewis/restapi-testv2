@@ -150,7 +150,8 @@ apigw = aws.apigatewayv2.Api(
         allow_credentials=False,
         allow_headers=["*"],
         allow_methods=["*"],
-        allow_origins=["*"]
+        allow_origins=["*"],
+        max_age=300
     )
 )
 integration = aws.apigatewayv2.Integration(
