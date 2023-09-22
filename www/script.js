@@ -2,7 +2,7 @@ const url = "https://7ici6znw71.execute-api.us-east-1.amazonaws.com/prod/get_fun
 
 function get() {
     fetch(
-        `${url}?transactionId=1234?type=BUY?amount=250`,
+        `${url}?transactionId=1234&type=BUY&amount=250`,
         {
             method: "GET",
             headers: {
