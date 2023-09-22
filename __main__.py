@@ -141,6 +141,18 @@ get_function = aws.lambda_.Function(
         }
     }
 )
+post_lambda = archive.get_file(
+    type="zip",
+    source_file="post_function.py",
+    output_path="lambda_post_payload.zip"
+)
+post_function = aws.lambda_.Function(
+    "post_func",
+    code=pulumi.FileArchive("lambda_post_payload.zip"),
+    role=iam_for_lambda.arn,
+    handler="post_function.handler",
+    runtime="python3.9"
+)
 
 # Create api
 apigw = aws.apigatewayv2.Api(
