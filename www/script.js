@@ -1,8 +1,8 @@
-const url = "https://7ici6znw71.execute-api.us-east-1.amazonaws.com/prod/get_func-4709940";
+const url = "https://7ici6znw71.execute-api.us-east-1.amazonaws.com/prod/";
 
 function get() {
     fetch(
-        `${url}?transactionId=1234&type=BUY&amount=250`,
+        `${url}get_func-4709940?transactionId=1234&type=BUY&amount=250`,
         {
             method: "GET",
             headers: {
@@ -20,11 +20,11 @@ function post() {
     data["amount"] = 600;
 
     fetch(
-        url,
+        `${url}post_func-a3f822a`,
         {
             method: "POST",
             headers: {
-                "Content-Type": "text/plain; charset=utf-8"
+                "Content-Type": "application/json"
             },
         body: JSON.stringify(data)
         }
