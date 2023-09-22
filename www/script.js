@@ -31,16 +31,3 @@ function post() {
     )
     .then((response) => response.json())
 }
-
-function options() {
-    fetch(
-        url,
-        {
-            method: "OPTIONS",
-            headers: {
-                "Content-Type": "text/plain; charset=utf-8"
-            }
-        }
-    )
-    .then((response) => response.json())
-}
