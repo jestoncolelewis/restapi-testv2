@@ -145,7 +145,13 @@ get_function = aws.lambda_.Function(
 # Create api
 apigw = aws.apigatewayv2.Api(
     "httpAPI", 
-    protocol_type="HTTP"
+    protocol_type="HTTP",
+    cors_configuration=aws.apigatewayv2.ApiCorsConfigurationArgs(
+        allow_credentials=False,
+        allow_headers=["*"],
+        allow_methods=["*"],
+        allow_origins=["*"]
+    )
 )
 integration = aws.apigatewayv2.Integration(
     "integration",
@@ -160,7 +166,7 @@ integration = aws.apigatewayv2.Integration(
 route = aws.apigatewayv2.Route(
     "route",
     api_id=apigw.id,
-    route_key=f"ANY /get_func-4709940"
+    route_key="ANY /get_func-4709940"
 )
 stage = aws.apigatewayv2.Stage(
     "stage",
