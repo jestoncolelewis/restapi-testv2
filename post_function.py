@@ -6,9 +6,9 @@ def handler(event, context):
     bodyType = body["type"]
     bodyAmount = body["amount"]
 
-    print("bodyID=" + bodyID)
-    print("bodyType=" + bodyType)
-    print("bodyAmount=" + bodyAmount)
+    print("bodyID={}".format(bodyID))
+    print("bodyType={}".format(bodyType))
+    print("bodyAmount={}".format(bodyAmount))
 
     bodyResponse = {}
     bodyResponse["bodyID"] = bodyID
