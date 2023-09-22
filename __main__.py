@@ -166,8 +166,8 @@ apigw = aws.apigatewayv2.Api(
         max_age=300
     )
 )
-integration = aws.apigatewayv2.Integration(
-    "integration",
+get_integration = aws.apigatewayv2.Integration(
+    "get_integration",
     api_id=apigw.id,
     integration_method="POST",
     integration_type="AWS_PROXY",
@@ -177,10 +177,26 @@ integration = aws.apigatewayv2.Integration(
     timeout_milliseconds=30000
 )
 get_route = aws.apigatewayv2.Route(
-    "route",
+    "get_route",
     api_id=apigw.id,
     route_key="GET /get_func-4709940",
-    target="integrations/rnaztbj"
+    target="integrations/6ero4vm"
+)
+post_integration = aws.apigatewayv2.Integration(
+    "post_integration",
+    api_id=apigw.id,
+    integration_method="POST",
+    integration_type="AWS_PROXY",
+    integration_uri=post_function.arn,
+    passthrough_behavior="WHEN_NO_MATCH",
+    payload_format_version="2.0",
+    timeout_milliseconds=30000
+)
+post_route = aws.apigatewayv2.Route(
+    "post_route",
+    api_id=apigw.id,
+    route_key="POST /post_func-a3f822a",
+    target="integrations/y81ylwq"
 )
 stage = aws.apigatewayv2.Stage(
     "stage",
