@@ -164,10 +164,11 @@ integration = aws.apigatewayv2.Integration(
     payload_format_version="2.0",
     timeout_milliseconds=30000
 )
-route = aws.apigatewayv2.Route(
+get_route = aws.apigatewayv2.Route(
     "route",
     api_id=apigw.id,
-    route_key="ANY /get_func-4709940"
+    route_key="GET /get_func-4709940",
+    target="integrations/rnaztbj"
 )
 stage = aws.apigatewayv2.Stage(
     "stage",
